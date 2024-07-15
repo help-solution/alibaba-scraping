@@ -1,4 +1,4 @@
 interface ProductResult {
 }
-declare const scrapTemuProduct: (url: string) => Promise<ProductResult | Error>;
-export { scrapTemuProduct };
+declare const scrapAlibabaProduct: (url: string) => Promise<ProductResult | Error>;
+export { scrapAlibabaProduct };

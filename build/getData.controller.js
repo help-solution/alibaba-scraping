@@ -15,161 +15,97 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getData = void 0;
 const utils_1 = __importDefault(require("./utils"));
 const getData = (page) => __awaiter(void 0, void 0, void 0, function* () {
-    const productInfoSelector = "._2ZET87n8";
-    yield page.waitForSelector(productInfoSelector);
-    const card_data_el = yield page.$(productInfoSelector);
-    const id = yield page.evaluate(() => {
-        var _a;
-        return ((_a = document.head
-            .querySelector('meta[property="fb:app_id"]')) === null || _a === void 0 ? void 0 : _a.getAttribute("content")) || "";
+    var _a, _b, _c, _d;
+    const header = yield page.evaluate(() => {
+        var _a, _b, _c;
+        const id = ((_a = document.querySelector('head > meta:nth-child(6)')) === null || _a === void 0 ? void 0 : _a.getAttribute('content')) || "";
+        const title = ((_b = document.querySelector('title')) === null || _b === void 0 ? void 0 : _b.textContent) || "";
+        const body_html = ((_c = document.querySelector('meta[http-equiv="origin-trial"]')) === null || _c === void 0 ? void 0 : _c.getAttribute("content")) || "";
+        return {
+            id,
+            title,
+            body_html,
+        };
     });
-    const title = yield page.evaluate(() => {
-        var _a;
-        return ((_a = document.head
-            .querySelector('meta[name="title"]')) === null || _a === void 0 ? void 0 : _a.getAttribute("content")) || "";
+    const product = () => __awaiter(void 0, void 0, void 0, function* () {
+        yield page.waitForSelector('#container > div.root > div.layout-body > div.layout-right > div > div > div > div.module_sku > div > div.sku-info > div:nth-child(2) > a:nth-child(1)', { timeout: 10000 });
+        const module_dialog_element = yield page.$('#container > div.root > div.layout-body > div.layout-right > div > div > div > div.module_sku > div > div.sku-info > div:nth-child(2) > a:nth-child(1)');
+        yield (module_dialog_element === null || module_dialog_element === void 0 ? void 0 : module_dialog_element.click());
+        yield page.waitForSelector('.sku-dialog-content');
+        const sku_module_element = yield page.$('.sku-dialog-content');
+        const priceData = yield (sku_module_element === null || sku_module_element === void 0 ? void 0 : sku_module_element.evaluate((el) => {
+            const priceItems = [];
+            const elements = el.querySelectorAll('.product-price .price-list .price-item');
+            elements.forEach((element) => {
+                var _a, _b, _c, _d;
+                const qualityElement = ((_b = (_a = element.querySelector('.quality')) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim()) || "";
+                const priceElement = ((_d = (_c = element.querySelector('.price span')) === null || _c === void 0 ? void 0 : _c.textContent) === null || _d === void 0 ? void 0 : _d.trim()) || "";
+                priceItems.push({ quality: qualityElement, price: priceElement });
+            });
+            return priceItems;
+        }));
+        const options = yield (sku_module_element === null || sku_module_element === void 0 ? void 0 : sku_module_element.evaluate((el) => {
+            const option1_elements = el.querySelectorAll('div.sku-layout.logistics > div.sku-info > div:nth-child(2) > a.image');
+            const option1 = Array.from(option1_elements).map((option) => {
+                var _a, _b;
+                option.click();
+                const name = ((_a = el.querySelector('div.sku-layout.logistics > div.sku-info > h4:nth-child(1) > span')) === null || _a === void 0 ? void 0 : _a.innerHTML) || "";
+                const img = ((_b = option.querySelector('img')) === null || _b === void 0 ? void 0 : _b.getAttribute('src')) || "";
+                return { name, img };
+            });
+            const option2Element = el.querySelector('div.sku-layout.logistics > div.sku-info > div:nth-child(4) > a > span');
+            const option2 = option2Element ? option2Element.innerHTML : null;
+            const option3_elements = el.querySelectorAll('.last-sku-item');
+            const option3 = Array.from(option3_elements).map((option) => {
+                var _a, _b;
+                const type = ((_a = option.querySelector('span.last-sku-first-item > span > span')) === null || _a === void 0 ? void 0 : _a.innerHTML) || "";
+                const price = ((_b = option.querySelector('span.price')) === null || _b === void 0 ? void 0 : _b.innerHTML) || "";
+                return { type, price };
+            });
+            return { option1, option2, option3 };
+        }));
+        yield (0, utils_1.default)(1000);
+        yield (sku_module_element === null || sku_module_element === void 0 ? void 0 : sku_module_element.waitForSelector('.strong', { visible: true }));
+        const vendor_element = yield (sku_module_element === null || sku_module_element === void 0 ? void 0 : sku_module_element.$('.strong'));
+        const vendor = yield (vendor_element === null || vendor_element === void 0 ? void 0 : vendor_element.evaluate((el) => { var _a; return ((_a = el.textContent) === null || _a === void 0 ? void 0 : _a.trim()) || ""; }));
+        return { priceData, options, vendor };
     });
-    const body_html = yield page.evaluate(() => {
-        var _a;
-        return ((_a = document.head
-            .querySelector('meta[property="og:description"]')) === null || _a === void 0 ? void 0 : _a.getAttribute("content")) || "";
+    yield page.waitForSelector('.image-list-item', { visible: true });
+    const images = yield page.evaluate(() => {
+        const images = document.querySelectorAll('.image-list-item');
+        return Array.from(images).map(img => img.getAttribute('src') || "");
     });
-    const vendor = yield (card_data_el === null || card_data_el === void 0 ? void 0 : card_data_el.evaluate((el) => el.querySelector("#rightContent > div.HFooICRX._3p1wuyo2").innerText));
-    const tags = yield (card_data_el === null || card_data_el === void 0 ? void 0 : card_data_el.evaluate((el) => el.querySelector("._2rn4tqXP").innerText));
+    const productResult = yield product();
     const getImageMetadata = (imageUrl) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield fetch(imageUrl);
         const lastModified = response.headers.get("last-modified");
         const createDate = response.headers.get("Date");
         return {
-            create_at: createDate,
-            lastupdate_at: lastModified,
+            create_at: createDate || "",
+            lastupdate_at: lastModified || "",
         };
     });
-    const image_selector = "._2ftcdy74";
-    yield page.waitForSelector(image_selector);
-    const image_els = yield page.$$(image_selector);
-    if (image_els.length > 0) {
-        for (let img of image_els) {
-            while (true) {
-                try {
-                    yield img.waitForSelector("img[src^='https'], img[data-src^='https']");
-                    break;
-                }
-                catch (_a) { }
-                yield (0, utils_1.default)(300);
-            }
-        }
-    }
-    const images = yield Promise.all(image_els.map((el, index) => __awaiter(void 0, void 0, void 0, function* () {
-        const data = yield el.evaluate((item) => {
-            const imgElement = item.querySelector("img");
-            return {
-                alt: imgElement.getAttribute("alt") || "",
-                src: imgElement.getAttribute("src") ||
-                    imgElement.getAttribute("data-src"),
-                width: imgElement.naturalWidth,
-                height: imgElement.naturalHeight,
-            };
-        });
-        const { create_at, lastupdate_at } = yield getImageMetadata(data.src);
-        return Object.assign(Object.assign({ id: "", position: index.toString() || "" }, data), { create_at,
-            lastupdate_at });
+    const productMetaInfo = yield Promise.all(((_b = (_a = productResult.options) === null || _a === void 0 ? void 0 : _a.option1) !== null && _b !== void 0 ? _b : []).map((option) => __awaiter(void 0, void 0, void 0, function* () {
+        const metaData = yield getImageMetadata(option.img);
+        return {
+            name: option.name,
+            img: option.img,
+            create_at: metaData.create_at,
+            lastupdate_at: metaData.lastupdate_at,
+        };
     })));
-    let product;
-    const option_selector = "._3csHYvw1";
-    const option_element = yield page.$(option_selector);
-    if (option_element !== null) {
-        product = yield option_element.evaluate((el) => {
-            var _a, _b;
-            const variantPriceElement = document.querySelector("._3cZnvUvE");
-            const variantPrice = variantPriceElement !== null
-                ? variantPriceElement.getAttribute("aria-label") || ""
-                : "";
-            const priceMatch = variantPrice.match(/\d+(\.\d+)?/g);
-            const price = priceMatch ? priceMatch[0] : "";
-            const title = ((_a = document.querySelector("._2zqZP145 > span > em")) === null || _a === void 0 ? void 0 : _a.innerHTML) || "";
-            const currency = ((_b = document.querySelector("._3cZnvUvE > span:last-child")) === null || _b === void 0 ? void 0 : _b.innerHTML) || "";
-            return {
-                title,
-                price,
-                currency,
-            };
-        });
-    }
-    const elements_array = "._3mjWr5DX";
-    let variants;
-    if (yield page.waitForSelector(elements_array, { timeout: 1000 })
-        .then(() => __awaiter(void 0, void 0, void 0, function* () { yield (0, utils_1.default)(1000); return 1; })).catch(() => 0)) {
-        const element = yield page.$(elements_array);
-        variants = yield (element === null || element === void 0 ? void 0 : element.evaluate((el) => {
-            var _a, _b, _c;
-            let variants = [];
-            let id = ((_a = document.head
-                .querySelector('meta[property="fb:app_id"]')) === null || _a === void 0 ? void 0 : _a.getAttribute("content")) || "";
-            const elementArray = el.querySelectorAll("._2bzGqXzH");
-            for (let i = 0; i < elementArray.length; ++i) {
-                elementArray[i].click();
-                const variantPriceElement = document.querySelector("._3cZnvUvE");
-                const variantPrice = variantPriceElement !== null
-                    ? variantPriceElement.getAttribute("aria-label") || ""
-                    : "";
-                const priceMatch = variantPrice.match(/\d+(\.\d+)?/g);
-                const price = priceMatch ? priceMatch[0] : "";
-                const option1 = (_b = document.querySelector("._2aXpqYRk > div > em")) === null || _b === void 0 ? void 0 : _b.innerHTML;
-                const option2 = (_c = document.querySelector(".p9maYisg")) === null || _c === void 0 ? void 0 : _c.innerHTML;
-                const image_url = elementArray[i]
-                    .querySelector(".wxWpAMbp")
-                    .getAttribute("src");
-                variants.push({
-                    id: id || "",
-                    title: option1 || "",
-                    price: price,
-                    option1: option1 || "",
-                    option2: option2 || "",
-                    option3: "",
-                    image_url: image_url || "",
-                });
-            }
-            return variants;
-        }));
-    }
-    const option1_selector = "._3mjWr5DX";
-    let option1;
-    if (yield page.waitForSelector(option1_selector, { timeout: 1000 })
-        .then(() => __awaiter(void 0, void 0, void 0, function* () { yield (0, utils_1.default)(1000); return 1; })).catch(() => 0)) {
-        const option1_element = yield page.$(option_selector);
-        option1 = Object.assign({ id: "", product_id: id, position: "1" }, (yield (option1_element === null || option1_element === void 0 ? void 0 : option1_element.evaluate((el) => {
-            var _a;
-            return ({
-                name: ((_a = document
-                    .querySelector("._1yW2vOYd > div > div")) === null || _a === void 0 ? void 0 : _a.getAttribute("aria-label")) || "",
-                values: Array.from(document.querySelectorAll("._2bzGqXzH")).map((variant) => variant.getAttribute("aria-label")),
-            });
-        }))));
-    }
-    const option2_selector = "._4kzxjBkE";
-    let option2;
-    if (yield page.waitForSelector(option2_selector, { timeout: 1000 })
-        .then(() => __awaiter(void 0, void 0, void 0, function* () { yield (0, utils_1.default)(1000); return 1; })).catch(() => 0)) {
-        const option2_element = yield page.$(option2_selector);
-        option2 = Object.assign({ id: "", product_id: id, position: "2" }, yield (option2_element === null || option2_element === void 0 ? void 0 : option2_element.evaluate((el) => {
-            var _a;
-            return ({
-                name: ((_a = document.querySelector(".aZN7lGU3")) === null || _a === void 0 ? void 0 : _a.getAttribute("aria-label")) || "",
-                values: Array.from(document.querySelectorAll("._2MDh6s4q")).map((variant) => variant.getAttribute("aria-label"))
-            });
-        })));
-    }
     const ProductData = {
-        id,
-        title,
-        body_html,
-        vendor,
-        tags,
-        currency: product === null || product === void 0 ? void 0 : product.currency,
+        id: header.id,
+        title: header.title,
+        body_html: header.body_html,
+        vendor: productResult.vendor || undefined,
         images,
-        product,
-        variants,
-        options: [option1, option2],
+        price: productResult.priceData,
+        product: productMetaInfo,
+        options: {
+            option2: ((_c = productResult.options) === null || _c === void 0 ? void 0 : _c.option2) || null,
+            option3: (_d = productResult.options) === null || _d === void 0 ? void 0 : _d.option3,
+        },
     };
     return ProductData;
 });
