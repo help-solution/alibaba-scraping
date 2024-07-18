@@ -12,29 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.scrapTemuProduct = void 0;
+exports.scrapAlibabaProduct = void 0;
 const puppeteer_extra_1 = __importDefault(require("puppeteer-extra"));
-const puppeteer_extra_plugin_stealth_1 = __importDefault(require("puppeteer-extra-plugin-stealth"));
 const getData_controller_1 = require("./getData.controller");
-const utils_1 = __importDefault(require("./utils"));
-const SBR_WS_ENDPOINT = 'wss://brd-customer-hl_2a5e82db-zone-web_unlocker1:m47tpduqy4ji@brd.superproxy.io:22225';
-puppeteer_extra_1.default.use((0, puppeteer_extra_plugin_stealth_1.default)());
-const scrapTemuProduct = (url) => __awaiter(void 0, void 0, void 0, function* () {
+const scrapAlibabaProduct = (url) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("Scraping data...");
-        const browser = yield puppeteer_extra_1.default.connect({
-            browserWSEndpoint: SBR_WS_ENDPOINT
+        const browser = yield puppeteer_extra_1.default.launch({
+            headless: false
         });
         const page = yield browser.newPage();
-        yield page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-        yield page.waitForSelector("._3E4sGl93", { timeout: 10000 }).catch(() => console.log("Accept button not found"));
-        const acceptAll = yield page.$("._3E4sGl93");
-        if (acceptAll) {
-            yield acceptAll.evaluate((accept) => accept.click());
-        }
-        yield (0, utils_1.default)(1000);
+        yield page.goto(url, { waitUntil: "domcontentloaded" });
         const productResult = yield (0, getData_controller_1.getData)(page);
-        yield browser.close();
         return productResult;
     }
     catch (error) {
@@ -48,5 +37,5 @@ const scrapTemuProduct = (url) => __awaiter(void 0, void 0, void 0, function* ()
         }
     }
 });
-exports.scrapTemuProduct = scrapTemuProduct;
+exports.scrapAlibabaProduct = scrapAlibabaProduct;
 //# sourceMappingURL=index.js.map

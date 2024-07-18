@@ -1,11 +1,12 @@
 {
-  "name": "temu-scraper",
+  "name": "alibaba-scraper",
   "version": "1.0.0",
   "description": "alibaba_product_scraping_module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "nodemon src/index.ts"
   },
   "author": "",
   "license": "",
@@ -15,6 +16,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "puppeteer": "^22.11.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
