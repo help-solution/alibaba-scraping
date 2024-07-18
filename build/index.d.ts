@@ -1,4 +1,2 @@
-interface ProductResult {
-}
-declare const scrapAlibabaProduct: (url: string) => Promise<ProductResult | Error>;
+declare const scrapAlibabaProduct: (url: string) => Promise<any | Error>;
 export { scrapAlibabaProduct };

@@ -2,26 +2,18 @@ import { Page } from "puppeteer";
 interface IProductData {
     id?: string;
     title?: string;
-    body_html?: string;
+    description?: any;
     images?: string[];
     vendor?: string;
-    price?: {
-        quality: string;
-        price: string;
-    }[];
-    options?: {
-        option2?: string | null;
-        option3?: {
-            type: string;
-            price: string;
-        }[];
-    };
+    price?: any;
+    options?: any;
     product?: {
         name: string;
         img: string;
         create_at: string;
         lastupdate_at: string;
     }[];
+    variants: any;
 }
 declare const getData: (page: Page) => Promise<IProductData>;
 export { getData };

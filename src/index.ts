@@ -11,10 +11,9 @@ const scrapAlibabaProduct = async (url: string): Promise<any | Error> => {
 
         const page = await browser.newPage();
 
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+        await page.goto(url, { waitUntil: "domcontentloaded" });
         // Get product data
         const productResult: any = await getData(page);
-        console.log(productResult);
         return productResult;
     } catch (error: unknown) {
         if (error instanceof Error) {
@@ -27,4 +26,7 @@ const scrapAlibabaProduct = async (url: string): Promise<any | Error> => {
     }
 };
 
+// scrapAlibabaProduct('https://www.alibaba.com/product-detail/free-sample-100-cotton-white-black_1600983321428.html?cardType=101002745&cardId=10001351942')
+// scrapAlibabaProduct('https://www.alibaba.com/product-detail/OEM-ODM-2020-Minimalist-Men-s_1600359184025.html')
+// scrapAlibabaProduct('https://www.alibaba.com/product-detail/OEM-Custom-Split-Hem-Wholesale-Baggy_1601088614185.html?cardType=101002745&cardId=10001265375')
 export {scrapAlibabaProduct};
